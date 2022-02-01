@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 
-// Constants
-const TWITTER_HANDLE = '_buildspace';
-const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
+import { Program, Provider, web3 } from '@project-serum/anchor';
 
-const TEST_GIFS = [
-	'https://c.tenor.com/Ekg6QgoYnrsAAAAd/ours-polaire-polar-bear.gif',
-	'https://c.tenor.com/xKGq2sWzs5IAAAAC/polar-bear-lazy.gif',
-	'https://www.gannett-cdn.com/experiments/usatoday/polar-bears/static/img/standing-baby-polar-bear-compressed.gif',
-	'https://media2.giphy.com/media/aK4wh0UE3oddS/200.gif'
-]
+import idl from './idl.json'
+
+// SystemProgram is a reference to the Solana runtime!
+const { SystemProgram, Keypair } = web3;
+
+// Create a keypair for the account that will hold the GIF data.
+let baseAccount = Keypair.generate();
+
+// Get our program's id from the IDL file.
+const programID = new PublicKey(idl.metadata.address);
+
+// Set our network to devnet.
+const network = clusterApiUrl('devnet');
+
+// Controls how we want to acknowledge when a transaction is "done".
+const opts = {
+  preflightCommitment: "processed"
+}
 
 const App = () => {
   const [walletAddress, setWalletAddress] = useState(null);
@@ -29,13 +40,31 @@ const App = () => {
   useEffect(()=>{
     if (walletAddress) {
       console.log('Fetching GIF list...');
-      
-      // Call Solana program here.
-  
-      // Set state
-      setGifList(TEST_GIFS);
+      getGifList();
     }
   }, [walletAddress])
+
+  const getProvider = () => {
+    const connection = new Connection(network, opts.preflightCommitment);
+    const provider = new Provider(
+      connection, window.solana, opts.preflightCommitment,
+    );
+    return provider;
+  }
+
+  const getGifList = async () => {
+    try{
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+      const account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+
+      console.log("got account " + account);
+      setGifList(account.gifList);
+    }catch(err){
+      console.log(err);
+      setGifList(null);
+    }
+  }
 
   const checkIfWalletIsConnected = async () => {
     try{
