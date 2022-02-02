@@ -87,12 +87,39 @@
   align-self: center;
 }
 
+.gif-grid .gif-item * {
+  padding:0;
+  margin:0
+}
+
+.gif-grid .gif-item .gif-footer {
+  display: flex;
+  justify-content: space-between;
+
+}
+
+
+.gif-grid .gif-item .gif-footer .gif-footer-button {
+  background-color: rgb(1, 214, 1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 5px;
+}
+
+.gif-grid .gif-item .gif-footer .gif-footer-button > * {
+  pointer-events: none
+}
+
+
 .gif-item img {
   width: 100%;
   height: 300px;
   border-radius: 10px;
   object-fit: cover;
 }
+
 
 .connected-container input[type='text'] {
   display: inline-block;

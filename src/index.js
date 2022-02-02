@@ -4,6 +4,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+//fix for 'ReferenceError: Buffer is not defined' probably cause by webpack 5
+import('buffer').then(({Buffer}) => {global.Buffer = Buffer;})
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
